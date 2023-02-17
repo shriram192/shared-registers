@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option go_package = "./api";
+
+package api;
+
+message ReadInput {
+    string key = 1;
+}
+
+message ReadOutput {
+    string value = 1;
+    int64 timestamp = 2;
+}
+
+message WriteInput {
+    string key = 1;
+    string value = 2;
+    int64 timestamp = 3;
+}
+
+message WriteOutput {
+    bool status = 1;
+    string message = 2;
+}
+
+service Api {
+  rpc GetValue(ReadInput) returns (ReadOutput) {}
+  rpc PutValue(WriteInput) returns (WriteOutput) {}
+}
