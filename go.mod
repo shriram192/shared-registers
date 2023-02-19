@@ -4,6 +4,8 @@ go 1.20
 
 require google.golang.org/grpc v1.53.0
 
+require golang.org/x/sync v0.1.0 // indirect
+
 require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	golang.org/x/net v0.5.0

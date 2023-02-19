@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/shriram192/shared-registers/api"
+	"golang.org/x/sync/syncmap"
 	"google.golang.org/grpc"
 )
 
@@ -24,14 +25,18 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	registers := make(map[string]string)
+	var registers syncmap.Map
+	var timestamps syncmap.Map
 
-	for i := 1; i <= 100000; i++ {
+	total_keys := 10000
+
+	for i := 1; i <= total_keys; i++ {
 		str_index := strconv.Itoa(i)
-		registers[str_index] = "init"
+		registers.Store(str_index, "init")
+		timestamps.Store(str_index, int64(0))
 	}
 
-	s := api.Server{Registers: registers, Timestamp: 0}
+	s := api.Server{Registers: registers, Timestamps: timestamps}
 
 	grpcServer := grpc.NewServer()
 

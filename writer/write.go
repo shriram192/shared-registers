@@ -24,7 +24,7 @@ func getMaxTimestamp(a []int64) (max int64) {
 func main() {
 
 	if len(os.Args[1:]) < 2 {
-		log.Fatalf("Incorrect call: go run write.go [key] [value] or ./write [key] [value]")
+		log.Fatalf("Incorrect call: go run write.go [key] [value] or ./writer [key] [value]")
 	}
 
 	var setKey = os.Args[1]
@@ -38,7 +38,7 @@ func main() {
 		var conn *grpc.ClientConn
 		conn, err := grpc.Dial(servers[i], grpc.WithInsecure())
 		if err != nil {
-			log.Fatalf("did not connect: %s", err)
+			log.Fatalf("did not connect: %v", err)
 		}
 		defer conn.Close()
 
@@ -48,7 +48,7 @@ func main() {
 		read_res, read_err := c.GetValue(context.Background(), &api.ReadInput{Key: setKey})
 
 		if read_err != nil {
-			log.Fatalf("Error when calling GetValue: %s", err)
+			log.Fatalf("Error when calling GetValue: %v", err)
 		}
 
 		log.Printf("Read Value from Server %d: %s", i+1, read_res.Value)
@@ -64,7 +64,7 @@ func main() {
 
 		write_res, write_err := client_list[i].PutValue(context.Background(), &api.WriteInput{Key: setKey, Value: setVal, Timestamp: max_time_stamp})
 		if write_err != nil {
-			log.Fatalf("Error when calling PutValue: %s", write_err)
+			log.Fatalf("Error when calling PutValue: %v", write_err)
 		}
 
 		log.Printf("Write Status from Server %d: %t", i+1, write_res.Status)
