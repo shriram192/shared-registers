@@ -23,7 +23,7 @@ func main() {
 	for i := 0; i < total_writes; i++ {
 		log.Printf("Write Number: %d", i+1)
 		get_random_key := strconv.Itoa(1 + rand.Intn(total_keys-1+1))
-		get_random_value := strconv.Itoa(rand.Intn(1000 + 1))
+		get_random_value := "11111111111111111111111111111111"
 
 		//Exec Write Command
 
