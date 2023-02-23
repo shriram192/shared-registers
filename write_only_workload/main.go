@@ -14,7 +14,7 @@ func main() {
 	log.Printf("Starting Write-Only Workload.....")
 	start_time := time.Now()
 
-	total_writes := 100000
+	total_writes := 10000
 	total_keys := 10000
 
 	// Init Rand
