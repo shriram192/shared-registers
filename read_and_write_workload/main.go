@@ -26,12 +26,12 @@ func main() {
 		get_random_write_value := strconv.Itoa(rand.Intn(1000 + 1))
 
 		//Exec Write Command
-		write_args := []string{get_random_write_key, get_random_write_value}
-		write_cmd := exec.Command("./writer", write_args...)
-		write_abs_path, _ := filepath.Abs("../writer")
+		write_args := []string{"set", get_random_write_key, get_random_write_value}
+		write_cmd := exec.Command("./client", write_args...)
+		write_abs_path, _ := filepath.Abs("../client")
 
 		write_cmd.Dir = write_abs_path
-		write_cmd.Path = "./writer"
+		write_cmd.Path = "./client"
 
 		write_cmd_output, write_cmd_err := write_cmd.CombinedOutput()
 		if write_cmd_err != nil {
@@ -42,12 +42,12 @@ func main() {
 		get_random_read_key := strconv.Itoa(1 + rand.Intn(total_keys-1+1))
 
 		//Exec Read Command
-		read_args := []string{get_random_read_key}
-		read_cmd := exec.Command("./reader", read_args...)
-		read_abs_path, _ := filepath.Abs("../reader")
+		read_args := []string{"get", get_random_read_key}
+		read_cmd := exec.Command("./client", read_args...)
+		read_abs_path, _ := filepath.Abs("../client")
 
 		read_cmd.Dir = read_abs_path
-		read_cmd.Path = "./reader"
+		read_cmd.Path = "./client"
 
 		read_cmd_output, read_cmd_err := read_cmd.CombinedOutput()
 		if read_cmd_err != nil {

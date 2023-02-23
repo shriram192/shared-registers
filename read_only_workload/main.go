@@ -26,12 +26,12 @@ func main() {
 
 		//Exec Write Command
 
-		args := []string{get_random_key}
-		cmd := exec.Command("./reader", args...)
-		abs_path, _ := filepath.Abs("../reader")
+		args := []string{"get", get_random_key}
+		cmd := exec.Command("./client", args...)
+		abs_path, _ := filepath.Abs("../client")
 
 		cmd.Dir = abs_path
-		cmd.Path = "./reader"
+		cmd.Path = "./client"
 
 		cmd_output, cmd_err := cmd.CombinedOutput()
 		if cmd_err != nil {
