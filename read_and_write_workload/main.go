@@ -14,7 +14,7 @@ func main() {
 	log.Print("Starting 50% read 50% write Workload.....")
 	start_time := time.Now()
 
-	total_writes := 10000
+	total_writes := 5000
 	total_keys := 10000
 
 	// Init Rand
