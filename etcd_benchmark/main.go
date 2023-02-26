@@ -39,7 +39,7 @@ func main() {
 
 		//Exec Write Command
 		write_args := []string{"etcdctl","endpoint=128.110.96.159:2380", "put", get_random_write_key, get_random_write_value}
-		write_cmd := exec.Command("ETCDCTL_API=5", write_args...)
+		write_cmd := exec.Command("ETCDCTL_API=3", write_args...)
 		write_cmd_output, write_cmd_err := write_cmd.CombinedOutput()
 		if write_cmd_err != nil {
 			fmt.Println(fmt.Sprint(write_cmd_err) + ": " + string(write_cmd_output))
@@ -50,7 +50,7 @@ func main() {
 
 		//Exec Read Command
 		read_args := []string{"etcdctl","endpoint=128.110.96.159:2380", "get", get_random_read_key}
-		read_cmd := exec.Command("ETCDCTL_API=5", read_args...)
+		read_cmd := exec.Command("ETCDCTL_API=3", read_args...)
 
 		read_cmd_output, read_cmd_err := read_cmd.CombinedOutput()
 		if read_cmd_err != nil {
