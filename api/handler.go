@@ -38,14 +38,14 @@ func (s *Server) GetValue(ctx context.Context, in *ReadInput) (*ReadOutput, erro
 		end_time := time.Now()
 		elapsed := end_time.Sub(start_time)
 		log.Printf("R: %f", 1/elapsed.Seconds())
-		fmt.Printf("R: %f\n", 1/elapsed.Seconds())
+		//fmt.Printf("R: %f\n", 1/elapsed.Seconds())
 
 		return &ReadOutput{Value: val.(string), Timestamp: timestamp.(int64)}, nil
 	} else {
 		end_time := time.Now()
 		elapsed := end_time.Sub(start_time)
 		log.Printf("R: %f", 1/elapsed.Seconds())
-		fmt.Printf("R: %f\n", 1/elapsed.Seconds())
+		//fmt.Printf("R: %f\n", 1/elapsed.Seconds())
 		return &ReadOutput{Value: "-1", Timestamp: -1}, status.Error(400, "Value not Found")
 	}
 }

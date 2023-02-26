@@ -33,7 +33,7 @@ func main() {
 	start_throughput_timer := time.Now()
 
 	for i := 0; i < total_writes; i++ {
-		fmt.Printf("Write Number: %d\n", i+1)
+		//fmt.Printf("Write Number: %d\n", i+1)
 		get_random_write_key := strconv.Itoa(1 + rand.Intn(total_keys-1+1))
 		get_random_write_value := strconv.Itoa(rand.Intn(1000 + 1))
 
@@ -50,7 +50,7 @@ func main() {
 			fmt.Println(fmt.Sprint(write_cmd_err) + ": " + string(write_cmd_output))
 		}
 
-		fmt.Printf("Read Number: %d\n", i+1)
+		//fmt.Printf("Read Number: %d\n", i+1)
 		get_random_read_key := strconv.Itoa(1 + rand.Intn(total_keys-1+1))
 
 		//Exec Read Command
@@ -70,7 +70,7 @@ func main() {
 			end_throughput_timer := time.Now()
 			elapsed := end_throughput_timer.Sub(start_throughput_timer)
 			start_throughput_timer = time.Now()
-			log.Printf("%f",time.Duration(batch_threshold) / elapsed)
+			log.Printf("%f",batch_threshold / elapsed.Seconds())
 		}
 	}
 
