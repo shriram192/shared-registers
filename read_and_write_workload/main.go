@@ -20,6 +20,18 @@ func main() {
 	// Init Rand
 	rand.Seed(time.Now().UnixNano())
 
+	LOG_FILE := "../shared_registers_throughput_logs"
+	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer logFile.Close()
+	log.SetOutput(logFile)
+	log.SetFlags(log.LstdFlags)
+
+	batch_threshold := 10
+	start_throughput_timer := time.Now()
+
 	for i := 0; i < total_writes; i++ {
 		log.Printf("Write Number: %d", i+1)
 		get_random_write_key := strconv.Itoa(1 + rand.Intn(total_keys-1+1))
@@ -53,9 +65,13 @@ func main() {
 		if read_cmd_err != nil {
 			fmt.Println(fmt.Sprint(read_cmd_err) + ": " + string(read_cmd_output))
 		}
+
+		if i % batch_threshold == 0 {
+			end_throughput_timer := time.Now()
+			elapsed := end_throughput_timer.Sub(start_throughput_timer)
+			start_throughput_timer = time.Now()
+			log.Printf("%f",batch_threshold / elapsed)
+		}
 	}
 
-	end_time := time.Now()
-	elapsed := end_time.Sub(start_time)
-	log.Printf("Total Time for Workload: %d", elapsed)
 }
