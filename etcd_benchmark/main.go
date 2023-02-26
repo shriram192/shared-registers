@@ -60,7 +60,7 @@ func main() {
 			end_throughput_timer := time.Now()
 			elapsed := end_throughput_timer.Sub(start_throughput_timer)
 			start_throughput_timer = time.Now()
-			log.Printf("%f", float64(batch_threshold) * 2.0 / elapsed.Seconds())
+			log.Printf("%f", float64(batch_threshold) / elapsed.Seconds())
 		}
 	}
 }
