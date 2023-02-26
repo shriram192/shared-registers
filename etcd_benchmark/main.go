@@ -38,7 +38,7 @@ func main() {
 		get_random_write_value := strconv.Itoa(rand.Intn(1000 + 1))
 
 		//Exec Write Command
-		write_args := []string{"endpoint=128.110.96.159:2380", "put", get_random_write_key, get_random_write_value}
+		write_args := []string{"--endpoints=128.110.96.159:2380", "put", get_random_write_key, get_random_write_value}
 		write_cmd := exec.Command("etcdctl", write_args...)
 		write_cmd_output, write_cmd_err := write_cmd.CombinedOutput()
 		if write_cmd_err != nil {
@@ -49,7 +49,7 @@ func main() {
 		get_random_read_key := strconv.Itoa(1 + rand.Intn(total_keys-1+1))
 
 		//Exec Read Command
-		read_args := []string{"endpoint=128.110.96.159:2380", "get", get_random_read_key}
+		read_args := []string{"--endpoints=128.110.96.159:2380", "get", get_random_read_key}
 		read_cmd := exec.Command("etcdctl", read_args...)
 
 		read_cmd_output, read_cmd_err := read_cmd.CombinedOutput()
