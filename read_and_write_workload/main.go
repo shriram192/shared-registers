@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	fmt.Print("Starting 50% read 50% write Workload.....")
+	//fmt.Print("Starting 50% read 50% write Workload.....")
 
 	total_writes := 5000
 	total_keys := 10000
