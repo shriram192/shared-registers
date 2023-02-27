@@ -11,7 +11,7 @@ import (
 
 func main() {
 	//fmt.Print("Starting 50% read 50% write Workload.....")
-	total_writes := 100
+	total_writes := 1000
 	// total_keys := 1
 
 	// Init Rand
