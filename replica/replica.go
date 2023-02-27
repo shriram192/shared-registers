@@ -28,13 +28,13 @@ func main() {
 	var registers syncmap.Map
 	var timestamps syncmap.Map
 
-	// total_keys := 1
+	total_keys := 10000
 
-	// for i := 1; i <= total_keys; i++ {
-	// 	str_index := strconv.Itoa(i)
-	// 	registers.Store(str_index, "init")
-	// 	timestamps.Store(str_index, int64(0))
-	// }
+	for i := 1; i <= total_keys; i++ {
+		str_index := strconv.Itoa(i)
+		registers.Store(str_index, "init")
+	 	timestamps.Store(str_index, int64(0))
+	}
 	str_index := strconv.Itoa(1)
 	registers.Store(str_index, "init")
 	timestamps.Store(str_index, int64(0))
