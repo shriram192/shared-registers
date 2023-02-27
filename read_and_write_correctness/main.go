@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"time"
-	"os"
 )
 
 func main() {
 	//fmt.Print("Starting 50% read 50% write Workload.....")
 	total_writes := 10
-	total_keys := 1
+	// total_keys := 1
 
 	// Init Rand
 	rand.Seed(time.Now().UnixNano())
@@ -28,8 +28,8 @@ func main() {
 	log.SetOutput(logFile)
 	log.SetFlags(log.LstdFlags)
 
-	batch_threshold := 10
-	start_throughput_timer := time.Now()
+	// batch_threshold := 10
+	// start_throughput_timer := time.Now()
 
 	for i := 1; i <= total_writes; i++ {
 		//fmt.Printf("Write Number: %d\n", i+1)
