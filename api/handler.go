@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
-
+	"encoding/json"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/syncmap"
 	"google.golang.org/grpc/status"
@@ -37,14 +37,18 @@ func (s *Server) GetValue(ctx context.Context, in *ReadInput) (*ReadOutput, erro
 	if ok_val && ok_timestamp {
 		end_time := time.Now()
 		elapsed := end_time.Sub(start_time)
-		log.Printf("R: %f", 1/elapsed.Seconds())
+		bs, _ := json.Marshal(Registers)
+    	log.Println(string(bs))
+		// log.Printf("R: %f", 1/elapsed.Seconds())
 		//fmt.Printf("R: %f\n", 1/elapsed.Seconds())
 
 		return &ReadOutput{Value: val.(string), Timestamp: timestamp.(int64)}, nil
 	} else {
 		end_time := time.Now()
 		elapsed := end_time.Sub(start_time)
-		log.Printf("R: %f", 1/elapsed.Seconds())
+		bs, _ := json.Marshal(Registers)
+    	log.Println(string(bs))
+		// log.Printf("R: %f", 1/elapsed.Seconds())
 		//fmt.Printf("R: %f\n", 1/elapsed.Seconds())
 		return &ReadOutput{Value: "-1", Timestamp: -1}, status.Error(400, "Value not Found")
 	}
@@ -73,22 +77,28 @@ func (s *Server) PutValue(ctx context.Context, in *WriteInput) (*WriteOutput, er
 			s.Timestamps.Store(in.Key, in.Timestamp)
 			end_time := time.Now()
 			elapsed := end_time.Sub(start_time)
-			log.Printf("W: %f", 1/elapsed.Seconds())
-			fmt.Printf("W: %f\n", 1/elapsed.Seconds())
+			bs, _ := json.Marshal(Registers)
+    		log.Println(string(bs))
+			// log.Printf("W: %f", 1/elapsed.Seconds())
+			// fmt.Printf("W: %f\n", 1/elapsed.Seconds())
 			return &WriteOutput{Status: true, Message: "Item Stored in Register"}, nil
 		} else {
 			end_time := time.Now()
 			elapsed := end_time.Sub(start_time)
-			log.Printf("W: %f", 1/elapsed.Seconds())
-			fmt.Printf("W: %f\n", 1/elapsed.Seconds())
+			bs, _ := json.Marshal(Registers)
+    		log.Println(string(bs))
+			// log.Printf("W: %f", 1/elapsed.Seconds())
+			// fmt.Printf("W: %f\n", 1/elapsed.Seconds())
 			return &WriteOutput{Status: true, Message: "Timestamp is old"}, nil
 		}
 
 	} else {
 		end_time := time.Now()
 		elapsed := end_time.Sub(start_time)
-		log.Printf("W: %f", 1/elapsed.Seconds())
-		fmt.Printf("W: %f\n", 1/elapsed.Seconds())
+		bs, _ := json.Marshal(Registers)
+    	log.Println(string(bs))
+		// log.Printf("W: %f", 1/elapsed.Seconds())
+		// fmt.Printf("W: %f\n", 1/elapsed.Seconds())
 		return &WriteOutput{Status: false, Message: "Key not found"}, nil
 	}
 

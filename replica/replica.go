@@ -28,7 +28,7 @@ func main() {
 	var registers syncmap.Map
 	var timestamps syncmap.Map
 
-	total_keys := 10000
+	total_keys := 1
 
 	for i := 1; i <= total_keys; i++ {
 		str_index := strconv.Itoa(i)
