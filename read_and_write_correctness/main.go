@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -13,26 +11,17 @@ import (
 
 func main() {
 	//fmt.Print("Starting 50% read 50% write Workload.....")
-	total_writes := 10
+	total_writes := 100
 	// total_keys := 1
 
 	// Init Rand
 	rand.Seed(time.Now().UnixNano())
 
-	LOG_FILE := "../read_write_correctness"
-	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer logFile.Close()
-	log.SetOutput(logFile)
-	log.SetFlags(log.LstdFlags)
-
 	// batch_threshold := 10
 	// start_throughput_timer := time.Now()
 
 	for i := 1; i <= total_writes; i++ {
-		//fmt.Printf("Write Number: %d\n", i+1)
+		fmt.Printf("Write Number: %d\n", i+1)
 		get_random_write_key := strconv.Itoa(1)
 		get_random_write_value := strconv.Itoa(rand.Intn(1000 + 1))
 
@@ -49,7 +38,7 @@ func main() {
 			fmt.Println(fmt.Sprint(write_cmd_err) + ": " + string(write_cmd_output))
 		}
 
-		//fmt.Printf("Read Number: %d\n", i+1)
+		fmt.Printf("Read Number: %d\n", i+1)
 		get_random_read_key := strconv.Itoa(1)
 
 		//Exec Read Command
