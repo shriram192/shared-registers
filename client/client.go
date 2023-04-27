@@ -124,7 +124,7 @@ func main() {
 
 		end_time := time.Now()
 		latency := end_time.Sub(start_time)
-		log.Printf("R: %d", latency.Milliseconds())
+		log.Printf("R: %f", latency.Seconds()*1000)
 
 	} else if operation == "set" {
 		setKey := os.Args[2]
@@ -151,7 +151,7 @@ func main() {
 		end_time := time.Now()
 		latency := end_time.Sub(start_time)
 
-		log.Printf("W: %d", latency.Milliseconds())
+		log.Printf("W: %f", latency.Seconds()*1000)
 	} else {
 		log.Fatalf("Invalid Operation %s", os.Args[1])
 	}
