@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func latestState(s *api.Server) {
+func latestState(s *Server) {
 	LOG_FILE := "../log"
 	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
