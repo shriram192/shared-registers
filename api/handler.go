@@ -1,7 +1,10 @@
 package api
 
 import (
+	"bufio"
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"golang.org/x/net/context"
@@ -9,85 +12,101 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func latestState(s *Server) {
+	LOG_FILE := "../log"
+	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatalf("Error occured at Open: %v", err)
+	}
+	defer logFile.Close()
+
+	scanner := bufio.NewScanner(logFile)
+	log_strings := make([]string, 0)
+
+	for scanner.Scan() {
+		log_strings = append(log_strings, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Read file Failure: %v", err)
+	}
+
+	if s.Timestamp < s.LogTimestamp {
+		for _, str := range log_strings {
+			line := strings.Split(str, " ")
+			key := line[0]
+			value := line[1]
+
+			// Use Client ID and Sequence Number for Non-Commutative
+			//clientId := line[2]
+			//seqId := line[3]
+			//timestamp := line[4]
+
+			// Store to KV Store
+			s.Registers.Store(key, value)
+			s.Timestamp = s.Timestamp + 1
+		}
+		return
+	} else {
+		return
+	}
+}
+
 // Server represents the gRPC server
 type Server struct {
-	Registers  syncmap.Map
-	Timestamps syncmap.Map
+	Registers    syncmap.Map
+	Timestamp    int64
+	LogTimestamp int64
 	UnimplementedApiServer
+}
+
+func (s *Server) GetState(ctx context.Context, in *StateInput) (*StateOutput, error) {
+	map_data := make(map[string]string)
+	s.Registers.Range(func(key any, value any) bool {
+		map_data[key.(string)] = value.(string)
+		return true
+	})
+	return &StateOutput{Registers: map_data, Timestamp: s.Timestamp, LogTimestamp: s.LogTimestamp}, nil
 }
 
 // Get Register Value and its timestamp Server RPC
 func (s *Server) GetValue(ctx context.Context, in *ReadInput) (*ReadOutput, error) {
-	//log.Printf("Received Read Key: %s", in.Key)
-
-	//LOG_FILE := "../correctness_logs"
-	//logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	//if err != nil {
-	//	log.Panic(err)
-	//}
-	//defer logFile.Close()
-	//log.SetOutput(logFile)
-	//log.SetFlags(log.LstdFlags)
+	log.Printf("Received Read Key: %s", in.Key)
 
 	start_time := time.Now()
+	// Bring the data store to latest config
+	latestState(s)
+
 	val, ok_val := s.Registers.Load(in.Key)
-	timestamp, ok_timestamp := s.Timestamps.Load(in.Key)
-	if ok_val && ok_timestamp {
+	if ok_val {
 		end_time := time.Now()
 		elapsed := end_time.Sub(start_time)
-		//log.Println(val)
 		log.Printf("R: %f", 1/elapsed.Seconds())
 
-		return &ReadOutput{Value: val.(string), Timestamp: timestamp.(int64)}, nil
+		return &ReadOutput{Value: val.(string)}, nil
 	} else {
 		end_time := time.Now()
 		elapsed := end_time.Sub(start_time)
 		log.Printf("R: %f", 1/elapsed.Seconds())
-
-		return &ReadOutput{Value: "-1", Timestamp: -1}, status.Error(400, "Value not Found")
+		return &ReadOutput{Value: "-1"}, status.Error(400, "Value not Found")
 	}
 }
 
 // Write Register Value Server RPC
 func (s *Server) PutValue(ctx context.Context, in *WriteInput) (*WriteOutput, error) {
-	//log.Printf("Received Write Key: %s", in.Key)
-	//log.Printf("Received Write Value: %s", in.Value)
+	log.Printf("Received Write Key: %s", in.Key)
+	log.Printf("Received Write Value: %s", in.Value)
 
-	//LOG_FILE := "../correctness_logs"
-	//logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	//if err != nil {
-	//	log.Panic(err)
-	//}
-	//defer logFile.Close()
-	//log.SetOutput(logFile)
-	//log.SetFlags(log.LstdFlags)
-
-	start_time := time.Now()
-	timestamp, ok_timestamp := s.Timestamps.Load(in.Key)
-
-	if ok_timestamp {
-		if in.Timestamp > timestamp.(int64) {
-			s.Registers.Store(in.Key, in.Value)
-			s.Timestamps.Store(in.Key, in.Timestamp)
-			end_time := time.Now()
-			elapsed := end_time.Sub(start_time)
-			log.Printf("W: %f", 1/elapsed.Seconds())
-
-			return &WriteOutput{Status: true, Message: "Item Stored in Register"}, nil
-		} else {
-			end_time := time.Now()
-			elapsed := end_time.Sub(start_time)
-			log.Printf("W: %f", 1/elapsed.Seconds())
-
-			return &WriteOutput{Status: true, Message: "Timestamp is old"}, nil
-		}
-
-	} else {
-		end_time := time.Now()
-		elapsed := end_time.Sub(start_time)
-		log.Printf("W: %f", 1/elapsed.Seconds())
-
-		return &WriteOutput{Status: false, Message: "Key not found"}, nil
+	LOG_FILE := "../log"
+	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Panic(err)
 	}
+	defer logFile.Close()
+	log.SetOutput(logFile)
+	log.SetFlags(log.LstdFlags)
 
+	s.LogTimestamp = s.LogTimestamp + 1
+	log.Printf("%s %s %d %d %d", in.Key, in.Value, in.ClientId, in.SeqId, s.LogTimestamp)
+	return &WriteOutput{Status: true, Message: "Item Stored in Log"}, nil
 }

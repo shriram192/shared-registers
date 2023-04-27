@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.12
-// source: api/api.proto
+// source: api.proto
 
 package api
 
@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type ApiClient interface {
 	GetValue(ctx context.Context, in *ReadInput, opts ...grpc.CallOption) (*ReadOutput, error)
 	PutValue(ctx context.Context, in *WriteInput, opts ...grpc.CallOption) (*WriteOutput, error)
+	GetState(ctx context.Context, in *StateInput, opts ...grpc.CallOption) (*StateOutput, error)
 }
 
 type apiClient struct {
@@ -52,12 +53,22 @@ func (c *apiClient) PutValue(ctx context.Context, in *WriteInput, opts ...grpc.C
 	return out, nil
 }
 
+func (c *apiClient) GetState(ctx context.Context, in *StateInput, opts ...grpc.CallOption) (*StateOutput, error) {
+	out := new(StateOutput)
+	err := c.cc.Invoke(ctx, "/api.Api/GetState", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApiServer is the server API for Api service.
 // All implementations must embed UnimplementedApiServer
 // for forward compatibility
 type ApiServer interface {
 	GetValue(context.Context, *ReadInput) (*ReadOutput, error)
 	PutValue(context.Context, *WriteInput) (*WriteOutput, error)
+	GetState(context.Context, *StateInput) (*StateOutput, error)
 	mustEmbedUnimplementedApiServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedApiServer) GetValue(context.Context, *ReadInput) (*ReadOutput
 }
 func (UnimplementedApiServer) PutValue(context.Context, *WriteInput) (*WriteOutput, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PutValue not implemented")
+}
+func (UnimplementedApiServer) GetState(context.Context, *StateInput) (*StateOutput, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetState not implemented")
 }
 func (UnimplementedApiServer) mustEmbedUnimplementedApiServer() {}
 
@@ -120,6 +134,24 @@ func _Api_PutValue_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Api_GetState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StateInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServer).GetState(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.Api/GetState",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServer).GetState(ctx, req.(*StateInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Api_ServiceDesc is the grpc.ServiceDesc for Api service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -135,7 +167,11 @@ var Api_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "PutValue",
 			Handler:    _Api_PutValue_Handler,
 		},
+		{
+			MethodName: "GetState",
+			Handler:    _Api_GetState_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/api.proto",
+	Metadata: "api.proto",
 }

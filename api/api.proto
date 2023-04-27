@@ -4,19 +4,27 @@ option go_package = "./api";
 
 package api;
 
+message StateInput {}
+
+message StateOutput {
+    map<string,string> registers = 1;
+    int64 timestamp = 2;
+    int64 logTimestamp = 3;
+}
+
 message ReadInput {
     string key = 1;
 }
 
 message ReadOutput {
     string value = 1;
-    int64 timestamp = 2;
 }
 
 message WriteInput {
     string key = 1;
     string value = 2;
-    int64 timestamp = 3;
+    int64 clientId = 3;
+    int64 seqId = 4;
 }
 
 message WriteOutput {
@@ -27,4 +35,5 @@ message WriteOutput {
 service Api {
   rpc GetValue(ReadInput) returns (ReadOutput) {}
   rpc PutValue(WriteInput) returns (WriteOutput) {}
+  rpc GetState(StateInput) returns (StateOutput) {}
 }
