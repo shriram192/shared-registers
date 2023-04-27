@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/povsister/scp"
 	"github.com/shriram192/shared-registers/api"
@@ -128,6 +129,7 @@ func watchForLogs(filePath string, fn func(s *api.Server), s *api.Server) error 
 				log.Fatalf("Error: Stat: %v", err)
 			}
 		}
+		time.Sleep(10 * time.Millisecond)
 	}
 }
 
