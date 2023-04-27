@@ -27,6 +27,9 @@ func touchFile(name string) error {
 }
 
 func scpData(host string) {
+	fmt.Println("Performing SCP to get log file!")
+	fmt.Printf("SCP Host Name: %s\n", host)
+
 	privPEM, err := ioutil.ReadFile("../pems/cloudlab")
 
 	if err != nil {
@@ -50,7 +53,6 @@ func scpData(host string) {
 
 	defer scpClient.Close()
 
-	fmt.Println("Performing SCP to get log file!")
 	err = scpClient.CopyFileFromRemote("~/go/src/github.com/shared-registers/log", "../log1", &scp.FileTransferOption{})
 	if err != nil {
 		log.Fatalf("Error when calling CopyFileFromRemote: Log: %v", err)
