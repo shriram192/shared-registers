@@ -102,6 +102,7 @@ func main() {
 		for i := 0; i < num_servers; i++ {
 
 			go func(i int) {
+				defer wg.Done()
 				read_res, read_err := client_list[i].GetValue(context.Background(), &api.ReadInput{Key: getKey})
 
 				if read_err != nil {
@@ -135,6 +136,7 @@ func main() {
 		start_time := time.Now()
 		for i := 0; i < num_servers; i++ {
 			go func(i int) {
+				defer wg.Done()
 				write_res, write_err := client_list[i].PutValue(context.Background(), &api.WriteInput{Key: setKey, Value: setVal})
 				if write_err != nil {
 					log.Fatalf("Error when calling PutValue: %v", write_err)
