@@ -83,17 +83,21 @@ func latestState(s *api.Server) {
 	if s.Timestamp < s.LogTimestamp {
 		for _, str := range log_strings {
 			line := strings.Split(str, " ")
+
+			// Use Client ID and Sequence Number for Non-Commutative
+			//clientId := line[4]
+			//seqId := line[5]
+
 			key := line[2]
 			value := line[3]
-			fmt.Printf("Key: %s, Value: %s", key, value)
-			// Use Client ID and Sequence Number for Non-Commutative
-			//clientId := line[2]
-			//seqId := line[3]
-			//timestamp := line[4]
+			timestamp, _ := strconv.Atoi(line[6])
 
 			// Store to KV Store
-			s.Registers.Store(key, value)
-			s.Timestamp = s.Timestamp + 1
+			if int64(timestamp) > s.Timestamp {
+				fmt.Printf("Executing Write : Key: %s, Value: %s\n", key, value)
+				s.Registers.Store(key, value)
+				s.Timestamp = s.Timestamp + 1
+			}
 		}
 		return
 	} else {
@@ -123,7 +127,7 @@ func watchForLogs(filePath string, fn func(s *api.Server), s *api.Server) error 
 		}
 
 		if stat.Size() != initialStat.Size() || stat.ModTime() != initialStat.ModTime() {
-			fmt.Printf("New Logs In Log File! Running Command!")
+			fmt.Println("New Logs In Log File! Running Command!")
 			fn(s)
 			initialStat, err = os.Stat(filePath)
 

@@ -2,8 +2,10 @@ package api
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,7 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func latestState(s *Server) {
+func latestState(s *api.Server) {
 	LOG_FILE := "../log"
 	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
@@ -34,17 +36,21 @@ func latestState(s *Server) {
 	if s.Timestamp < s.LogTimestamp {
 		for _, str := range log_strings {
 			line := strings.Split(str, " ")
-			key := line[0]
-			value := line[1]
 
 			// Use Client ID and Sequence Number for Non-Commutative
-			//clientId := line[2]
-			//seqId := line[3]
-			//timestamp := line[4]
+			//clientId := line[4]
+			//seqId := line[5]
+
+			key := line[2]
+			value := line[3]
+			timestamp, _ := strconv.Atoi(line[6])
 
 			// Store to KV Store
-			s.Registers.Store(key, value)
-			s.Timestamp = s.Timestamp + 1
+			if int64(timestamp) > s.Timestamp {
+				fmt.Printf("Executing Write : Key: %s, Value: %s\n", key, value)
+				s.Registers.Store(key, value)
+				s.Timestamp = s.Timestamp + 1
+			}
 		}
 		return
 	} else {
