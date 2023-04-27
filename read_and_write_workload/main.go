@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -18,20 +17,10 @@ func main() {
 
 	// Init Rand
 	rand.Seed(time.Now().UnixNano())
-
-	LOG_FILE := "../rw_workload_logs"
-	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer logFile.Close()
-	log.SetOutput(logFile)
-	log.SetFlags(log.LstdFlags)
-
-	batch_threshold := 1
-	start_throughput_timer := time.Now()
-	num_servers := os.Args[1]
-	ips := os.Args[2:]
+	//batch_threshold := 1
+	file_path := os.Args[1]
+	num_servers := os.Args[2]
+	ips := os.Args[3:]
 
 	for i := 1; i <= total_writes; i++ {
 		//fmt.Printf("Write Number: %d\n", i+1
@@ -39,8 +28,9 @@ func main() {
 		get_random_write_value := strconv.Itoa(rand.Intn(1000 + 1))
 
 		//Exec Write Command
-		write_args := []string{"set", get_random_write_key, get_random_write_value, num_servers}
+		write_args := []string{"set", get_random_write_key, get_random_write_value, file_path, num_servers}
 		write_args = append(write_args, ips...)
+
 		write_cmd := exec.Command("./client", write_args...)
 		write_abs_path, _ := filepath.Abs("../client")
 
@@ -56,7 +46,7 @@ func main() {
 		get_random_read_key := strconv.Itoa(1 + rand.Intn(total_keys-1+1))
 
 		//Exec Read Command
-		read_args := []string{"get", get_random_read_key, num_servers}
+		read_args := []string{"get", get_random_read_key, file_path, num_servers}
 		read_args = append(read_args, ips...)
 		read_cmd := exec.Command("./client", read_args...)
 		read_abs_path, _ := filepath.Abs("../client")
@@ -67,13 +57,6 @@ func main() {
 		read_cmd_output, read_cmd_err := read_cmd.CombinedOutput()
 		if read_cmd_err != nil {
 			fmt.Println(fmt.Sprint(read_cmd_err) + ": " + string(read_cmd_output))
-		}
-
-		if i%batch_threshold == 0 {
-			end_throughput_timer := time.Now()
-			elapsed := end_throughput_timer.Sub(start_throughput_timer)
-			start_throughput_timer = time.Now()
-			log.Printf("%f", float64(batch_threshold)/float64(elapsed.Seconds()*1000))
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -41,40 +42,41 @@ func main() {
 
 	if len(os.Args[1:]) > 1 {
 		if os.Args[1] == "get" {
-			val, _ := strconv.Atoi(os.Args[3])
-			if len(os.Args[4:]) < val {
-				log.Fatalf("number of servers do not match number of ips provided")
-			}
-		} else {
 			val, _ := strconv.Atoi(os.Args[4])
 			if len(os.Args[5:]) < val {
 				log.Fatalf("number of servers do not match number of ips provided")
 			}
+		} else {
+			val, _ := strconv.Atoi(os.Args[5])
+			if len(os.Args[6:]) < val {
+				log.Fatalf("number of servers do not match number of ips provided")
+			}
 		}
 	} else {
-		log.Fatalf("Incorrect call: ./client [get] [key] [num_servers] [**ip:port] or ./client [set] [key] [value] [num_servers] [**ip:port]")
+		log.Fatalf("Incorrect call: ./client [get] [key] [file_path] [num_servers] [**ip:port] or ./client [set] [key] [value] [file_path] [num_servers] [**ip:port]")
 	}
 
 	operation := os.Args[1]
 	var num_servers = 0
 	var replicas = make([]string, 0)
+	var LOG_FILE = ""
 
 	if operation == "get" {
-		num_servers, _ = strconv.Atoi(os.Args[3])
-		replicas = os.Args[4:]
-	} else {
 		num_servers, _ = strconv.Atoi(os.Args[4])
 		replicas = os.Args[5:]
+		LOG_FILE = os.Args[3]
+	} else {
+		num_servers, _ = strconv.Atoi(os.Args[5])
+		replicas = os.Args[6:]
+		LOG_FILE = os.Args[4]
 	}
 
-	// LOG_FILE := "../client_logs"
-	// logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
-	// defer logFile.Close()
-	// log.SetOutput(logFile)
-	// log.SetFlags(log.LstdFlags)
+	logFile, err := os.OpenFile(LOG_FILE, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer logFile.Close()
+	datawriter := bufio.NewWriter(logFile)
 
 	var client_list []api.ApiClient
 
@@ -124,8 +126,11 @@ func main() {
 
 		end_time := time.Now()
 		latency := end_time.Sub(start_time)
-		log.Printf("R: %f", latency.Seconds()*1000)
-
+		output := latency.Seconds() * 1000
+		log.Printf("R: %f", output)
+		final := fmt.Sprint(output)
+		datawriter.WriteString(final + "\n")
+		datawriter.Flush()
 	} else if operation == "set" {
 		setKey := os.Args[2]
 		setVal := os.Args[3]
@@ -151,7 +156,11 @@ func main() {
 		end_time := time.Now()
 		latency := end_time.Sub(start_time)
 
-		log.Printf("W: %f", latency.Seconds()*1000)
+		output := latency.Seconds() * 1000
+		log.Printf("W: %f", output)
+		final := fmt.Sprint(output)
+		datawriter.WriteString(final + "\n")
+		datawriter.Flush()
 	} else {
 		log.Fatalf("Invalid Operation %s", os.Args[1])
 	}
