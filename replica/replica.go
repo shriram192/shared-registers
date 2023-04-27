@@ -3,15 +3,14 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/povsister/scp"
 	"github.com/shriram192/shared-registers/api"
 	"golang.org/x/net/context"
 	"golang.org/x/sync/syncmap"
@@ -30,34 +29,19 @@ func scpData(host string) {
 	fmt.Println("Performing SCP to get log file!")
 	fmt.Printf("SCP Host Name: %s\n", host)
 
-	privPEM, err := ioutil.ReadFile("../pems/cloudlab")
+	// scp sa84@10.10.1.3:~/go/src/github.com/shared-registers/log ../log
 
-	if err != nil {
-		log.Fatalf("Error when calling ReadFile: %v", err)
+	op := "scp"
+	user := "sa84"
+	path := "~/go/src/github.com/shared-registers/log"
+
+	source := user + "@" + host + ":" + path
+	dest := "../log"
+
+	cmd := exec.Command(op, source, dest)
+	if err := cmd.Run(); err != nil {
+		log.Fatal(err)
 	}
-	// without passphrase
-	sshConf, err := scp.NewSSHConfigFromPrivateKey("sa84", privPEM)
-
-	if err != nil {
-		log.Fatalf("Error when calling NewSSHConfigFromPrivateKey: %v", err)
-	}
-
-	// Dial SSH to "my.server.com:22".
-	// If your SSH server does not listen on 22, simply suffix the address with port.
-	// e.g: "my.server.com:1234"
-	scpClient, err := scp.NewClient(host, sshConf, &scp.ClientOption{})
-
-	if err != nil {
-		log.Fatalf("Error when calling NewClient: %v", err)
-	}
-
-	defer scpClient.Close()
-
-	err = scpClient.CopyFileFromRemote("~/go/src/github.com/shared-registers/log", "../log1", &scp.FileTransferOption{})
-	if err != nil {
-		log.Fatalf("Error when calling CopyFileFromRemote: Log: %v", err)
-	}
-
 	return
 }
 
