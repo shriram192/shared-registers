@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -33,7 +32,6 @@ func main() {
 	start_throughput_timer := time.Now()
 	num_servers := os.Args[1]
 	ips := os.Args[2:]
-	ip_joined := strings.Join(ips[:], " ")
 
 	for i := 1; i <= total_writes; i++ {
 		//fmt.Printf("Write Number: %d\n", i+1
@@ -41,7 +39,8 @@ func main() {
 		get_random_write_value := strconv.Itoa(rand.Intn(1000 + 1))
 
 		//Exec Write Command
-		write_args := []string{"set", get_random_write_key, get_random_write_value, num_servers, ip_joined}
+		write_args := []string{"set", get_random_write_key, get_random_write_value, num_servers}
+		write_args = append(write_args, ips...)
 		write_cmd := exec.Command("./client", write_args...)
 		write_abs_path, _ := filepath.Abs("../client")
 
@@ -57,7 +56,8 @@ func main() {
 		get_random_read_key := strconv.Itoa(1 + rand.Intn(total_keys-1+1))
 
 		//Exec Read Command
-		read_args := []string{"get", get_random_read_key, num_servers, ip_joined}
+		read_args := []string{"get", get_random_read_key, num_servers}
+		read_args = append(read_args, ips...)
 		read_cmd := exec.Command("./client", read_args...)
 		read_abs_path, _ := filepath.Abs("../client")
 
