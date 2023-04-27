@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/shriram192/shared-registers/api"
@@ -94,22 +95,30 @@ func main() {
 
 		var val_list []string
 
+		var wg sync.WaitGroup
+		wg.Add(len(client_list))
+
 		start_time := time.Now()
-
 		for i := 0; i < num_servers; i++ {
-			read_res, read_err := client_list[i].GetValue(context.Background(), &api.ReadInput{Key: getKey})
 
-			if read_err != nil {
-				log.Fatalf("Error when calling GetValue: %v", read_err)
-			} else {
-				val_list = append(val_list, read_res.Value)
-				major_val := majorityElement(val_list, int(num_servers/2))
+			go func(i int) {
+				read_res, read_err := client_list[i].GetValue(context.Background(), &api.ReadInput{Key: getKey})
 
-				if major_val != "-1" {
-					fmt.Printf("Majority Found!!! Read Value: %s\n", major_val)
-					break
+				if read_err != nil {
+					log.Fatalf("Error when calling GetValue: %v", read_err)
+				} else {
+					val_list = append(val_list, read_res.Value)
 				}
-			}
+			}(i)
+
+		}
+
+		wg.Wait()
+
+		major_val := majorityElement(val_list, int(num_servers/2))
+
+		if major_val != "-1" {
+			fmt.Printf("Majority Found!!! Read Value: %s\n", major_val)
 		}
 
 		end_time := time.Now()
@@ -120,22 +129,27 @@ func main() {
 		setKey := os.Args[2]
 		setVal := os.Args[3]
 
-		start_time := time.Now()
+		var wg sync.WaitGroup
+		wg.Add(len(client_list))
 
+		start_time := time.Now()
 		for i := 0; i < num_servers; i++ {
-			write_res, write_err := client_list[i].PutValue(context.Background(), &api.WriteInput{Key: setKey, Value: setVal})
-			if write_err != nil {
-				log.Fatalf("Error when calling PutValue: %v", write_err)
-			} else {
-				fmt.Printf("Status: %s\n", write_res.Message)
-			}
+			go func(i int) {
+				write_res, write_err := client_list[i].PutValue(context.Background(), &api.WriteInput{Key: setKey, Value: setVal})
+				if write_err != nil {
+					log.Fatalf("Error when calling PutValue: %v", write_err)
+				} else {
+					fmt.Printf("Status: %s\n", write_res.Message)
+				}
+			}(i)
 		}
+
+		wg.Wait()
 
 		end_time := time.Now()
 		latency := end_time.Sub(start_time)
 
 		log.Printf("W: %d", latency.Microseconds())
-
 	} else {
 		log.Fatalf("Invalid Operation %s", os.Args[1])
 	}
