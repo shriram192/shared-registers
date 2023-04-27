@@ -41,7 +41,10 @@ func scpData(host string) {
 	cmd := exec.Command(op, source, dest)
 	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
+	} else {
+		fmt.Println("SCP Complete! Log Downloaded!")
 	}
+
 	return
 }
 
@@ -141,6 +144,7 @@ func main() {
 	touchFile("../log")
 
 	var maxTime int64 = -1
+	var maxLogTime int64 = -1
 	var maxId int = -1
 	maxMap := make(map[string]string)
 
@@ -163,6 +167,7 @@ func main() {
 			} else {
 				if read_res.Timestamp > maxTime {
 					maxTime = read_res.Timestamp
+					maxLogTime = read_res.LogTimestamp
 					maxId = i
 					maxMap = read_res.Registers
 				}
@@ -172,6 +177,8 @@ func main() {
 	}
 
 	var registers syncmap.Map
+	var initTime = -1
+	var initLogTime = -1
 	if maxTime == -1 || maxTime == 0 {
 		fmt.Println("Initializing Map! No Replica with Logs Found!")
 		total_keys := 10000
@@ -179,11 +186,15 @@ func main() {
 			str_index := strconv.Itoa(i)
 			registers.Store(str_index, "init")
 		}
+		initTime = 0
+		initLogTime = 0
 	} else {
 		fmt.Println("Replicas found with Logs!")
 		for k, v := range maxMap {
 			registers.Store(k, v)
 		}
+		initTime = int(maxTime)
+		initLogTime = int(maxLogTime)
 		host_split := strings.Split(replicas[maxId], ":")
 		scpData(host_split[0])
 	}
@@ -193,7 +204,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := api.Server{Registers: registers, Timestamp: 0, LogTimestamp: 0}
+	s := api.Server{Registers: registers, Timestamp: int64(initTime), LogTimestamp: int64(initLogTime)}
 
 	grpcServer := grpc.NewServer()
 
