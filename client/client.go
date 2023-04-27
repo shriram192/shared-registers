@@ -75,6 +75,20 @@ func main() {
 	// log.SetOutput(logFile)
 	// log.SetFlags(log.LstdFlags)
 
+	var client_list []api.ApiClient
+
+	for i := 0; i < num_servers; i++ {
+		var conn *grpc.ClientConn
+		conn, err := grpc.Dial(replicas[i], grpc.WithInsecure())
+		if err != nil {
+			log.Fatalf("did not connect: %v", err)
+		}
+		defer conn.Close()
+
+		c := api.NewApiClient(conn)
+		client_list = append(client_list, c)
+	}
+
 	if operation == "get" {
 		getKey := os.Args[2]
 
@@ -83,19 +97,10 @@ func main() {
 		start_time := time.Now()
 
 		for i := 0; i < num_servers; i++ {
-			var conn *grpc.ClientConn
-			conn, err := grpc.Dial(replicas[i], grpc.WithInsecure())
-			if err != nil {
-				log.Fatalf("did not connect: %v", err)
-			}
-			defer conn.Close()
-
-			c := api.NewApiClient(conn)
-
-			read_res, read_err := c.GetValue(context.Background(), &api.ReadInput{Key: getKey})
+			read_res, read_err := client_list[i].GetValue(context.Background(), &api.ReadInput{Key: getKey})
 
 			if read_err != nil {
-				log.Fatalf("Error when calling GetValue: %v", err)
+				log.Fatalf("Error when calling GetValue: %v", read_err)
 			} else {
 				val_list = append(val_list, read_res.Value)
 				major_val := majorityElement(val_list, int(num_servers/2))
@@ -118,16 +123,7 @@ func main() {
 		start_time := time.Now()
 
 		for i := 0; i < num_servers; i++ {
-			var conn *grpc.ClientConn
-			conn, err := grpc.Dial(replicas[i], grpc.WithInsecure())
-			if err != nil {
-				log.Fatalf("did not connect: %v", err)
-			}
-			defer conn.Close()
-
-			c := api.NewApiClient(conn)
-
-			write_res, write_err := c.PutValue(context.Background(), &api.WriteInput{Key: setKey, Value: setVal})
+			write_res, write_err := client_list[i].PutValue(context.Background(), &api.WriteInput{Key: setKey, Value: setVal})
 			if write_err != nil {
 				log.Fatalf("Error when calling PutValue: %v", write_err)
 			} else {
