@@ -41,5 +41,5 @@ func main() {
 
 	end_time := time.Now()
 	elapsed := end_time.Sub(start_time)
-	log.Printf("Total Time for Workload: %f", elapsed.Seconds())
+	log.Printf("Total Time for Workload: %d", elapsed.Microseconds())
 }

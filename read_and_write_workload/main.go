@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"time"
-	"os"
 )
 
 func main() {
@@ -65,11 +65,11 @@ func main() {
 			fmt.Println(fmt.Sprint(read_cmd_err) + ": " + string(read_cmd_output))
 		}
 
-		if i % batch_threshold == 0 {
+		if i%batch_threshold == 0 {
 			end_throughput_timer := time.Now()
 			elapsed := end_throughput_timer.Sub(start_throughput_timer)
 			start_throughput_timer = time.Now()
-			log.Printf("%f",float64(batch_threshold) / elapsed.Seconds())
+			log.Printf("%f", float64(batch_threshold)/float64(elapsed.Microseconds()))
 		}
 	}
 }

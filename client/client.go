@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func majorityElement(nums []string) string {
+func majorityElement(nums []string, cnt int) string {
 	lenNums := len(nums)
 
 	if lenNums == 1 {
@@ -25,7 +25,7 @@ func majorityElement(nums []string) string {
 		_, ok := numsMap[nums[i]]
 		if ok {
 			numsMap[nums[i]] = numsMap[nums[i]] + 1
-			if numsMap[nums[i]] > lenNums/2 {
+			if numsMap[nums[i]] > cnt {
 				return nums[i]
 			}
 		} else {
@@ -34,7 +34,6 @@ func majorityElement(nums []string) string {
 	}
 
 	return "-1"
-
 }
 
 func main() {
@@ -99,19 +98,20 @@ func main() {
 				log.Fatalf("Error when calling GetValue: %v", err)
 			} else {
 				val_list = append(val_list, read_res.Value)
-			}
-		}
+				major_val := majorityElement(val_list, int(num_servers/2))
 
-		major_val := majorityElement(val_list)
-		if major_val != "-1" {
-			fmt.Printf("Majority Found!!! Read Value: %s\n", major_val)
-		} else {
-			fmt.Println("Majority Not Found!! Failure!!")
+				if major_val != "-1" {
+					fmt.Printf("Majority Found!!! Read Value: %s\n", major_val)
+				} else {
+					fmt.Println("Majority Not Found!! Failure!!")
+					break
+				}
+			}
 		}
 
 		end_time := time.Now()
 		latency := end_time.Sub(start_time)
-		log.Printf("R: %f", latency.Seconds())
+		log.Printf("R: %d", latency.Microseconds())
 
 	} else if operation == "set" {
 		setKey := os.Args[2]
@@ -140,7 +140,7 @@ func main() {
 		end_time := time.Now()
 		latency := end_time.Sub(start_time)
 
-		log.Printf("W: %f", latency.Seconds())
+		log.Printf("W: %d", latency.Microseconds())
 
 	} else {
 		log.Fatalf("Invalid Operation %s", os.Args[1])
