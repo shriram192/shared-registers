@@ -102,8 +102,6 @@ func main() {
 
 				if major_val != "-1" {
 					fmt.Printf("Majority Found!!! Read Value: %s\n", major_val)
-				} else {
-					fmt.Println("Majority Not Found!! Failure!!")
 					break
 				}
 			}
