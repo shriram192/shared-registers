@@ -87,13 +87,13 @@ func (s *Server) GetValue(ctx context.Context, in *ReadInput) (*ReadOutput, erro
 	if ok_val {
 		end_time := time.Now()
 		elapsed := end_time.Sub(start_time)
-		log.Printf("R: %d", 1/elapsed.Microseconds())
+		log.Printf("R: %d", 1/elapsed.Milliseconds())
 
 		return &ReadOutput{Value: val.(string)}, nil
 	} else {
 		end_time := time.Now()
 		elapsed := end_time.Sub(start_time)
-		log.Printf("R: %d", 1/elapsed.Microseconds())
+		log.Printf("R: %d", 1/elapsed.Milliseconds())
 		return &ReadOutput{Value: "-1"}, status.Error(400, "Value not Found")
 	}
 }
